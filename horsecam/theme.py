@@ -56,6 +56,8 @@ def apply(root, name):
         st.configure("Accent.TButton")
         st.configure("Hint.TLabel", foreground="#52514e")
         st.configure("Header.TFrame")
+        st.configure("CardTitle.TLabel", font="HCBold")
+        st.configure("CardWhen.TLabel", font="HCTitle")
         root.configure(bg=st.lookup("TFrame", "background") or "SystemButtonFace")
         _chart(("#fcfcfb", "#0b0b0b", "#52514e", "#e6e5e1"))
         return None
@@ -121,6 +123,17 @@ def apply(root, name):
            indicatorbackground=[("selected", acc)], indicatorforeground=[("selected", on_acc)])
     st.configure("Horizontal.TProgressbar", background=acc2, troughcolor=panel,
                  bordercolor=border, lightcolor=acc2, darkcolor=acc2)
+    st.configure("Treeview", background=field, fieldbackground=field, foreground=text,
+                 bordercolor=border, lightcolor=field, darkcolor=field)
+    st.map("Treeview", background=[("selected", acc)], foreground=[("selected", on_acc)])
+    st.configure("Treeview.Heading", background=panel, foreground=text, bordercolor=border,
+                 lightcolor=panel, darkcolor=panel, font="HCBold", padding=(4, 3))
+    st.map("Treeview.Heading", background=[("active", border)])
+    st.configure("TScrollbar", background=panel, troughcolor=bg, bordercolor=border,
+                 arrowcolor=text, lightcolor=panel, darkcolor=panel)
+    st.configure("CardTitle.TLabel", background=bg, foreground=dark if name != "Night" else acc,
+                 font="HCBold")
+    st.configure("CardWhen.TLabel", background=bg, foreground=text, font="HCTitle")
     st.configure("Header.TFrame", background=t["header"])
     st.configure("Header.TLabel", background=t["header"], foreground="#ffffff",
                  font="HCTitle")

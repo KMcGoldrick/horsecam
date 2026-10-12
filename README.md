@@ -49,6 +49,16 @@ If the same card was copied twice, the second copy is detected and skipped.
    chart as PNG plus CSVs (each horse photo, each visit, hourly counts, per-camera
    summary) into `reports\<date>\`.
 
+## Cameras tab
+
+One row per camera: photos, date range, days with photos (gaps = camera down),
+photos checked / waiting, horse photos and %, horse days, visits, visits per day,
+average and longest visit, busiest hour, photos still to review, and the first and
+last horse photo. Click a camera to see its **first and last horse photo** with
+date and time, with buttons to open the photo or show it in File Explorer.
+It uses the horse threshold, visit gap and dates shared with the Histograms tab.
+*Save table (CSV)* writes `reports\camera_stats_<date>.csv`.
+
 ## Study folder layout
 
 ```

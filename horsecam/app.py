@@ -16,6 +16,7 @@ from . import importer, detector
 from . import tooltip
 from . import theme
 from .tooltip import tip, NotebookTips
+from .cameras_tab import CamerasTab
 
 # Tk's built-in fonts; every label, button, tab, list and text box uses one of these
 NAMED_FONTS = ("TkDefaultFont", "TkTextFont", "TkFixedFont", "TkMenuFont", "TkHeadingFont",
@@ -80,6 +81,7 @@ class App(tk.Tk):
         self.card_files = None
 
         self.th = theme.apply(self, self.s.get("theme", theme.DEFAULT))
+        self._row_height()
         self._build_header()
         self._build_status()      # pack the status/log area first so it never gets squeezed
         nb = ttk.Notebook(self)
@@ -87,15 +89,18 @@ class App(tk.Tk):
         self.tab_import = ttk.Frame(nb)
         self.tab_detect = ttk.Frame(nb)
         self.tab_analyze = ttk.Frame(nb)
+        self.tab_cameras = ttk.Frame(nb)
         self.tab_settings = ttk.Frame(nb)
         nb.add(self.tab_import, text="1. Import photos")
         nb.add(self.tab_detect, text="2. Find horses")
         nb.add(self.tab_analyze, text="3. Histograms")
+        nb.add(self.tab_cameras, text="4. Cameras")
         nb.add(self.tab_settings, text="Settings")
         self._build_settings()
         self._build_import()
         self._build_detect()
         self._build_analyze()
+        self.cameras = CamerasTab(self, self.tab_cameras)
         nb.bind("<<NotebookTabChanged>>", self._tab_changed)
         self.nb = nb
         NotebookTips(nb, {
@@ -105,7 +110,9 @@ class App(tk.Tk):
                "your manual review decisions.",
             2: "Charts of when horses show up (by hour, day, camera) and saving reports "
                "with CSV files.",
-            3: "Study folder, camera names and detection options. Press 'Save settings' "
+            3: "Statistics for each camera, and its first and last horse photo with "
+               "date and time.",
+            4: "Study folder, camera names and detection options. Press 'Save settings' "
                "after changing anything here.",
         })
 
@@ -143,6 +150,7 @@ class App(tk.Tk):
                 self._hc_fonts[fname] = tkfont.Font(root=self, name=fname, family=d["family"],
                                                     size=size, weight="bold")
         tooltip.WRAP_PX = int(380 * scale)
+        self._row_height()
         if self.fig is not None:
             self.fig.set_dpi(CHART_DPI * scale)
             w = self.canvas.get_tk_widget()
@@ -150,6 +158,11 @@ class App(tk.Tk):
                 self.fig.set_size_inches(w.winfo_width() / self.fig.dpi,
                                          w.winfo_height() / self.fig.dpi)
             self.canvas.draw_idle()
+
+    def _row_height(self):
+        """Table rows tall enough for the current text size (re-applied after theme changes)."""
+        ttk.Style(self).configure(
+            "Treeview", rowheight=tkfont.nametofont("TkDefaultFont").metrics("linespace") + 8)
 
     def _build_header(self):
         """Colored title strip across the top (hidden in the Classic theme)."""
@@ -162,6 +175,7 @@ class App(tk.Tk):
 
     def apply_theme(self, name):
         self.th = theme.apply(self, name)
+        self._row_height()
         theme.style_text(self.logbox, self.th)
         if self.th and not self.header.winfo_ismapped():
             self.header.pack(fill="x", side="top", before=self.nb)
@@ -174,6 +188,8 @@ class App(tk.Tk):
         self.refresh_counts()
         if self.nb.select() == str(self.tab_analyze):
             self.update_chart()
+        elif self.nb.select() == str(self.tab_cameras):
+            self.cameras.refresh()
 
     # ------------------------------------------------------------- plumbing
     def _build_status(self):
@@ -190,7 +206,7 @@ class App(tk.Tk):
         self.btn_stop.pack(side="right")
         tip(self.btn_stop, "Stop the running job safely. Work done so far is kept — indexing, "
                            "import and detection pick up where they left off next time.")
-        self.logbox = tk.Text(bar, height=7, wrap="word", state="disabled")
+        self.logbox = tk.Text(bar, height=5, wrap="word", state="disabled")
         theme.style_text(self.logbox, self.th)
         self.logbox.pack(fill="x", pady=(4, 0))
         tip(self.logbox, "Activity log for this session. Detailed per-file logs for each "
