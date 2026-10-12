@@ -1,0 +1,23 @@
+# Python environment and caches (rebuilt by setup.bat)
+.venv/
+__pycache__/
+*.pyc
+
+# Windows folder files and backups
+desktop.ini
+Thumbs.db
+*.bak
+
+# Study data never belongs in the repo: photos, catalog, reports, logs
+*.jpg
+*.jpeg
+*.JPG
+*.png
+*.mp4
+*.avi
+*.db
+reports/
+logs/
+
+# Downloaded detection models
+*.pt
